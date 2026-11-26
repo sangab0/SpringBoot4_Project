@@ -30,6 +30,7 @@
 		<java.version>17</java.version>
 		<spring-boot-admin.version>4.0.4</spring-boot-admin.version>
         <spring-framework.version>7.0.10</spring-framework.version>
+        <!--        <h2.version>2.3.232</h2.version>-->
     </properties>
 	<dependencies>
 		<dependency>
