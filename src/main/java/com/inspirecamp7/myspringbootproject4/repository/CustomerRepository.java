@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
     Optional<Customer> findByCustomerId(String customerId);
-    Listelc<Customer> findByCustomerNameContains(String customerName);
+    List<Customer> findByCustomerNameContains(String customerName);
 }
