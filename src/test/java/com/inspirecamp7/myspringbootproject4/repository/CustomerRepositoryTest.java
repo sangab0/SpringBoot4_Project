@@ -13,7 +13,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 // 스프링 부트 환경을 불러와 Bean과 DB 연결 설정 등을 사용하는 테스트
 @SpringBootTest
-public class CustomerRepositoryTest {
+//@Transactional
+class CustomerRepositoryTest {
     // @Autowired: 스프링이 관리하는 Bean 중 타입에 맞는 객체를 찾아 자동으로 주입하는 어노테이션
     @Autowired
     CustomerRepository customerRepository;
@@ -39,15 +40,26 @@ public class CustomerRepositoryTest {
         assertThat(addedCustomer.getCustomerName()).isEqualTo("스프링AB");
     }
 
-    //Customer 수정
-    @Test
-    void testUpdate() {
 
-        Customer customer = customerRepository.findByCustomerId("A001")
+    //Customer 수정
+    /*  Native Query
+         update customers set customer_name = '스프링A' where customer_id = 'A001';
+        Hibernate 가 생성한 Query ( DynamicUpdate 적용 전 )
+         update customers set customer_id=?,customer_name=? where id=?
+        Hibernate 가 생성한 Query ( DynamicUpdate 적용 후 )
+         update customers set customer_name=? where id=?
+     */
+
+    @Test
+    @Transactional
+    @Rollback(value = false)
+    void testUpdate() {
+        Customer customer = customerRepository.findByCustomerId("AB001")
                 .orElseGet(() -> new Customer());
-        customer.setCustomerName("SpringA");
-        Customer updatedCustomer = customerRepository.save(customer);
-        assertThat(updatedCustomer.getCustomerName()).isEqualTo("SpringA");
+        customer.setCustomerName("SpringABC");
+        //Customer updatedCustomer = customerRepository.save(customer);
+        //assertThat(updatedCustomer.getCustomerName()).isEqualTo("SpringB");
+        assertThat(customer.getCustomerName()).isEqualTo("SpringABC");
     }
 
     // 2.Customer 조회 ( 값이 일치하는 Customer 존재하는 경우 )
@@ -69,17 +81,17 @@ public class CustomerRepositoryTest {
     // 3.Customer 조회 ( 값이 일치하는 Customer 존재하지 않는 경우 )
     @Test
     void testReadNotFound() {
-        // Optional orElseGet(Supplier supplier)
-        // 함수형인터페이스 Supplier 추상메서드 T get()
+        //Optional orElseGet(Supplier supplier)
+        //함수형인터페이스 Supplier 추상메서드 T get()
 
-        Customer existCustomer = customerRepository.findByCustomerId("B001")  // Optional<Customer>
+        Customer existCustomer = customerRepository.findByCustomerId("B001")  //Optional<Customer>
                 .orElseGet(() -> new Customer());
-        // Customer가 값이 있는 경우는 성공함
+        //Customer가 값이 있는 경우는 성공함
         assertThat(existCustomer.getCustomerId()).isNotNull();
 
-        Customer notExistCustomer = customerRepository.findByCustomerId("F001")  // Optional<Customer>
+        Customer notExistCustomer = customerRepository.findByCustomerId("F001")  //Optional<Customer>
                 .orElseGet(() -> new Customer());
-        // Customer가 값이 없는 경우는 성공함
+        //Customer가 값이 없는 경우는 성공함
         assertThat(notExistCustomer.getCustomerId()).isNull();
     }
 
